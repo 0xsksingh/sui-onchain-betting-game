@@ -1,0 +1,10 @@
+[package]
+name = "betting_contract"
+version = "0.0.1"
+edition = "2024.beta"
+
+[dependencies]
+Sui = { local = "" }
+
+[addresses]
+betting_contract = "0x0"
