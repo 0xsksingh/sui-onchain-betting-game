@@ -1,4 +1,4 @@
-module game::game {
+module betting_contract::betting_contract {
     use sui::balance::Balance;
     use sui::coin::{Self, Coin};
     use sui::tx_context::TxContext;

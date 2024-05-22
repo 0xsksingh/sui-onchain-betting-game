@@ -15,6 +15,9 @@ export default function Root() {
               <li>
                 <Link to={`/about`}>About the Game</Link>
               </li>
+              <li>
+                <Link to={`/admin`}>Admin Page</Link>
+              </li>
             </ul>
           </nav>
         </inner-column>

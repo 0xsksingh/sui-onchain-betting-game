@@ -6,13 +6,14 @@ import howler from "howler";
 import { useAccounts } from "@mysten/dapp-kit";
 import Bid from "./Bid";
 import gsap from "gsap";
-import { ConnectButton, useConnectWallet, useCurrentAccount, useSignAndExecuteTransactionBlock } from '@mysten/dapp-kit';
+import { ConnectButton, useConnectWallet, useCurrentAccount, useSignAndExecuteTransaction } from '@mysten/dapp-kit';
 import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 import { Transaction } from '@mysten/sui/transactions';
+import { SUI_CLOCK_OBJECT_ID } from "@mysten/sui.js/utils";
 
  const  WheelModule=()=> {
   const accounts = useAccounts();
-  const { mutate: signAndExecuteTransactionBlock , executeFromWallet } = useSignAndExecuteTransactionBlock();
+  const { mutate: SignAndExecuteTransaction , executeFromWallet } = useSignAndExecuteTransaction();
   const [buttonDisabled, setButtonDisabled] = useState(
     accounts.length !== 0 ? "" : "disabled"
   );
@@ -66,7 +67,7 @@ import { Transaction } from '@mysten/sui/transactions';
     }
 
     await call();
-    // await spinWheel();
+    await spinWheel();
   }
 
   function animations() {
@@ -120,31 +121,46 @@ import { Transaction } from '@mysten/sui/transactions';
     const client = new SuiClient({ url: rpcUrl });
 
     const tx = new Transaction();
-    const rewardAmount = 100;
+    const rewardAmount = 1000000000;
+    const oneMinute = 1 * 60 * 1000; 
+    // tx.moveCall({
+    //   target: '6EmgnQK64YoRUhpQE6AwWDQaxQpDspurYRncZqmhPv5T::roll_dice::roll_dice_quiet',
+    //   arguments: [
+    //     tx.pure(Date.now() + oneMinute),
+    //     tx.pure.u64(100_000_000)
+    //   ],
+    // });
+
+    const [feeCoin] = tx.splitCoins(tx.gas, [
+      tx.pure(100_000_000),
+    ]);
 
     tx.moveCall({
-      target: '0x2::0xf6a3395c9fe17f84609d5652bbbd3fa30730cae43893e176e6411beb2787a2c4::create',
-      arguments: [tx.pure.u64(rewardAmount)],
+      target: `0xa25c09e571864ab351bdc3d08181c063469d08bd550ca662e815f78ff8450707::betting_contract::place_bet`,
+      arguments: [
+        tx.object(
+          "0xdf4273ed5c0f90fecc40af54f9d37ac86c44e54588dc52da27bf9cd5e64e8b48"
+        ), // game: &mut Game
+        tx.object(feeCoin), // coin: Coin<SUI>
+        tx.object(SUI_CLOCK_OBJECT_ID), // clock: &Clock
+      ],
     });
 
-    tx.setGasBudget(100000000);
+    tx.setGasBudget(1000000000);
     tx.setSender("0x1abb48bc4aac9e2689ad1b73fd5cfbbf6bdbade8e75ebf1466da4c3c41d16d46");
 
-    const signed = await tx.build({ client });
-    console.log(signed, "signed");
-
-    const signtxn = await signAndExecuteTransactionBlock(
+    const txn = await SignAndExecuteTransaction(
       {
-        transactionBlock: signed
-      }
-    )
-
-    console.log(signtxn,"signed")
+        transaction: tx,
+        chain: 'sui:devnet',
+      })
+      console.log(txn,"txn")
+    // console.log(signtxn,"signed")
     try{
 
-        const txn = await signAndExecuteTransactionBlock(
+        const txn = await SignAndExecuteTransaction(
         {
-          transaction: signed,
+          transaction: tx,
           chain: 'sui:devnet',
         },
         {

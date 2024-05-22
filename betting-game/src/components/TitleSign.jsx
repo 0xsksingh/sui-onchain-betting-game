@@ -21,12 +21,11 @@ export default function TitleSign() {
       <span>I</span>
       <span>N</span>
       <span>G</span>
-      <span>G</span>
       <span>A</span>
       <span>M</span>
       <span>E</span>
       <span>ON</span>
-      <span>L3</span>
+      <span>SUI</span>
     </h1>
   );
 }
