@@ -16,7 +16,7 @@
    - Betting on the first or second halves of the table
    - Betting on the first, second, or third thirds of the table
 
-2. **Submit Your Wager**: Each bet requires a minimum of 0.001 ETH to play. You can place your bet by calling the corresponding function with your chosen parameters.
+2. **Submit Your Wager**: Each bet requires a minimum of 1 SUI to play. You can place your bet by calling the corresponding function with your chosen parameters.
 
 3. **Spin the Wheel**: After placing your bet, call the `spinBettingWheel()` function to spin the wheel and determine the outcome.
 
@@ -32,6 +32,6 @@
 
 ## Smart Contract Details
 
-- **Minimum Bet**: 0.1 SUI
+- **Minimum Bet**: 1 SUI
 - **House Balance**: The contract ensures that the house (contract) and sponsor wallet remain solvent. If the house balance is too low, it can be refilled by sending ETH directly to the contract address.
 - **Random Number Generation**: The contract utilizes Sui's randomness module for secure and unbiased random number generation.
