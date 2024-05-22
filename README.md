@@ -7,6 +7,8 @@
 
 ## Architecture of the project
 
+![image](https://github.com/0xsksingh/sui-onchain-betting-game/assets/129384571/f136579e-411d-4d44-a01d-1855711c710c)
+
 ## How to Play
 
 1. **Place Your Bet**: Choose from different betting options, including:
