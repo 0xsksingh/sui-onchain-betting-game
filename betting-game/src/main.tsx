@@ -11,7 +11,9 @@ import {
 } from "@mysten/dapp-kit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Theme } from "@radix-ui/themes";
-import App from "./App.tsx";
+// @ts-ignore
+import App from "./App";
+import "./styles/site.css";
 
 const queryClient = new QueryClient();
 
