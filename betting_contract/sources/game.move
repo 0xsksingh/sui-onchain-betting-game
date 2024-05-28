@@ -4,9 +4,10 @@ module game::game {
     use sui::tx_context::TxContext;
     use sui::random::{Random, new_generator};
     use sui::table::Table;
-    use sui::address::Address;
     use std::vector;
+    use sui::sui::SUI;
 
+    const SPONSER_WALLET : address = @0x3205f568eb92e891f889686c21270e51e0c0987d618a2b413d8e9c9b19d320ed;
     const MIN_BET: u64 = 10000; // 0.001 SUI equivalent in smallest denomination
     const HOUSE_COMMISSION: u64 = 10; // 10% commission
     const DEPLOYER_COMMISSION: u64 = 2; // 2% commission
@@ -25,15 +26,15 @@ module game::game {
 
     public struct BettingGame has key, store {
         id: UID,
-        house_balance: Balance<Coin>,
+        house_balance: Balance<SUI>,
         spin_count: u64,
-        bets: Table<Address, Bet>,
+        bets: Table<u64, Bet>,
         spin_results: Table<u64, SpinResult>,
-        deployer: Address,
-        sponsor_wallet: Address,
+        deployer: address,
+        sponsor_wallet: address,
     }
 
-    public fun init_game(sponsor_wallet: Address, ctx: &mut TxContext): BettingGame {
+    public fun init_game(sponsor_wallet: address, ctx: &mut TxContext): BettingGame {
         BettingGame {
             id: object::new(ctx),
             house_balance: Balance::zero(),
@@ -45,7 +46,7 @@ module game::game {
         }
     }
 
-    public fun place_bet(game: &mut BettingGame, amount: u64, bet_type: u8, value: u64, coin: Coin<Coin>, ctx: &mut TxContext) {
+    public fun place_bet(game: &mut BettingGame, amount: u64, bet_type: u8, value: u64, coin: Coin<SUI>, ctx: &mut TxContext) {
         assert!(amount >= MIN_BET, 0);
         let user = tx_context::sender(ctx);
 
@@ -61,9 +62,9 @@ module game::game {
         start_spin(game, ctx);
     }
 
-    fun start_spin(game: &mut BettingGame, ctx: &mut TxContext) {
-        let mut generator = new_generator(ctx);
-        let random_value = generator.next_u64();
+    fun start_spin(game: &mut BettingGame, ctx: &mut TxContext, r: &Random) {
+        let mut generator = r.new_generator(ctx);
+        let random_value = generator.generate_u8_in_range(1, 100);
         complete_spin(game, random_value, ctx);
     }
 
@@ -150,7 +151,7 @@ module game::game {
         Balance::transfer(&mut game.house_balance, user, amount, ctx);
     }
 
-    public fun fund_house(game: &mut BettingGame, amount: Coin<Coin>, ctx: &mut TxContext) {
+    public fun fund_house(game: &mut BettingGame, amount: Coin<SUI>, ctx: &mut TxContext) {
         Balance::add(&mut game.house_balance, amount);
     }
 
