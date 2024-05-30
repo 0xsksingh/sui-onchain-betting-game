@@ -6,10 +6,13 @@ import howler from "howler";
 import { useAccounts } from "@mysten/dapp-kit";
 import Bid from "./Bid";
 import gsap from "gsap";
+import { ConnectButton, useConnectWallet, useCurrentAccount, useSignAndExecuteTransactionBlock } from '@mysten/dapp-kit';
+import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
+import { Transaction } from '@mysten/sui/transactions';
 
-export default function WheelModule() {
+ const  WheelModule=()=> {
   const accounts = useAccounts();
-
+  const { mutate: signAndExecuteTransactionBlock , executeFromWallet } = useSignAndExecuteTransactionBlock();
   const [buttonDisabled, setButtonDisabled] = useState(
     accounts.length !== 0 ? "" : "disabled"
   );
@@ -62,8 +65,8 @@ export default function WheelModule() {
       return;
     }
 
-    //  setCenter("See Wallet");
-    await spinWheel();
+    await call();
+    // await spinWheel();
   }
 
   function animations() {
@@ -111,6 +114,58 @@ export default function WheelModule() {
       currentColorSlice.classList.add("selected");
     }
   }
+
+  const call = async () => {
+    const rpcUrl = getFullnodeUrl('devnet');
+    const client = new SuiClient({ url: rpcUrl });
+
+    const tx = new Transaction();
+    const rewardAmount = 100;
+
+    tx.moveCall({
+      target: '0x2::0xf6a3395c9fe17f84609d5652bbbd3fa30730cae43893e176e6411beb2787a2c4::create',
+      arguments: [tx.pure.u64(rewardAmount)],
+    });
+
+    tx.setGasBudget(100000000);
+    tx.setSender("0x1abb48bc4aac9e2689ad1b73fd5cfbbf6bdbade8e75ebf1466da4c3c41d16d46");
+
+    const signed = await tx.build({ client });
+    console.log(signed, "signed");
+
+    const signtxn = await signAndExecuteTransactionBlock(
+      {
+        transactionBlock: signed
+      }
+    )
+
+    console.log(signtxn,"signed")
+    try{
+
+        const txn = await signAndExecuteTransactionBlock(
+        {
+          transaction: signed,
+          chain: 'sui:devnet',
+        },
+        {
+          onSuccess: (result) => {
+            console.log('executed transaction', result);
+          },
+        },
+        {
+          onError: (err) => {
+            console.log('executed transaction', err,err.message);
+          },
+        }
+      );
+
+          console.log(txn,"txnnnn")
+    } catch(error) {
+      console.log(error,"error",error.message);
+    }
+
+  }
+
 
   //return
   return (
@@ -164,3 +219,5 @@ function shakeConnectButton() {
   }, 1200);
   return;
 }
+
+export default WheelModule;
